@@ -1,7 +1,7 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 from authentication.forms import LoginForm
 
@@ -33,3 +33,9 @@ class LoginView(TemplateView):
             else:
                 form.add_error(None, "Wrong credentials")
         return render(request, self.template_name, context)
+
+
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return HttpResponseRedirect('/')
