@@ -1,0 +1,63 @@
+{% extends "base/navbar.html" %}
+{% block inner_content %}
+    <div class="container">
+        <form
+                action={% url "csv:generate-dataset" pk=schema_pk%}
+        >
+            <div class="row">
+                <div class="col-3">
+                    <h1>Data schemas</h1>
+                </div>
+                <div class="col-7 align-self-center">
+                    <div class="d-flex justify-content-end">
+                        <div class="col-md-auto text-end px-2">
+                            <div class="input-group align-items-center">
+                                Rows:&nbsp;
+                                <input
+                                        class="form-control inline"
+                                        type="number"
+                                        id="rows_number_id"
+                                        name="rows_number"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-auto text-end ">
+                            <button
+                                    class="btn btn-success"
+                                    type="submit"
+                            >
+                                Generate data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row pt-2">
+            <div class="col-10">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for dataset in datasets %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                            </td>
+                            <td>{{ dataset.created }}</td>
+                            <td>{{ dataset.status }}</td>
+                            <td>Actions</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

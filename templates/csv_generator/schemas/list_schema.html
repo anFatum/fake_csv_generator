@@ -36,7 +36,7 @@
                             <th scope="row">{{ forloop.counter }}</th>
                             <td>
                                 <a class="btn btn-link text-decoration-none"
-                                   href="#"
+                                   href={% url "csv:list-dataset" pk=schema.pk %}
                                 >
                                     {{ schema.title }}
                                 </a>

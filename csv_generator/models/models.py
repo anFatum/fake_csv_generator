@@ -40,7 +40,7 @@ class Field(models.Model):
     schema = models.ForeignKey(Schema,
                                on_delete=models.CASCADE,
                                related_name="fields")
-    options = models.JSONField(blank=False, null=False)
+    options = models.JSONField(blank=True, null=True)
     order = models.IntegerField(blank=False, null=False)
 
 

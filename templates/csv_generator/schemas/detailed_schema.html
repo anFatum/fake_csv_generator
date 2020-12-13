@@ -1,5 +1,5 @@
 {% extends "base/navbar.html" %}
-
+{% load class_extras %}
 {% block inner_content %}
     <div class="container">
         <form
@@ -61,6 +61,162 @@
                         {{ field }}
                         <br/>
                     {% endfor %}
+                </div>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-10">
+                    <h2>Fields</h2>
+                    {{ inlines.management_form }}
+                    <div id="form_set">
+                        {% for inline_f in inlines %}
+                            <table class="table table-borderless">
+                                <tr>
+                                    {% for field in inline_f %}
+                                        {% if not field.is_hidden %}
+                                            <td>
+                                                {% for error in field.errors %}
+                                                    <div class="alert alert-danger">
+                                                        {{ error }}
+                                                    </div>
+                                                {% endfor %}
+                                                <label
+                                                        for="{{ field.auto_id }}"
+                                                        class="form-label"
+                                                >
+                                                    {{ field.label }}
+                                                </label>
+
+                                                {{ field }}
+                                            </td>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <td class="align-bottom">
+                                        <input
+                                                class="btn btn-link link-danger text-decoration-none"
+                                                type="submit"
+                                                name="del_btn_{{ forloop.counter0 }}"
+                                                value="Delete"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        {% endfor %}
+                    </div>
+                    <div class="container border rounded p-3">
+                        <div class="row">
+                            <table class="table table-borderless" id="empty_form">
+                                <tr>
+                                    {% for field in inlines.empty_form.visible_fields %}
+                                        <td>
+                                            <label
+                                                    for="{{ field.auto_id }}"
+                                                    class="form-label"
+                                            >
+                                                {{ field.label }}
+                                            </label>
+                                            {{ field }}
+                                        </td>
+                                    {% endfor %}
+
+                                    <td class="align-bottom">
+                                        <input
+                                                class="btn btn-link link-danger text-decoration-none"
+                                                type="submit"
+                                                name="new_del_btn__prefix__"
+                                                value="Delete"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <button
+                                        class="btn btn-primary"
+                                        id="add_more"
+                                >
+                                    Add column
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        let addButton = $("#add_more")
+                        addButton.on('click', addForm)
+
+                        $("input[name^='del_btn']").each(function () {
+                            $(this).on("click", removeFromModels)
+                        })
+
+                        function addForm(e) {
+                            e.preventDefault()
+                            cloneMore("#empty_form", 'fields')
+                            cleanForm("#empty_form")
+                        }
+
+                        function cloneMore(selector, type) {
+                            const type_field = $(selector).find('option:selected').val();
+                            let newElement = $(selector).clone(true);
+                            let total = $('#id_' + type + '-TOTAL_FORMS').val();
+                            newElement.find(':input').each(function () {
+                                let name = $(this).attr('name').replace('__prefix__', total);
+                                let id = 'id_' + name;
+                                const isSelect = $(this).find("option:selected").val();
+                                $(this).attr({'name': name, 'id': id}).removeAttr('checked');
+                                if (isSelect)
+                                    $(this).val(type_field)
+                                if ($(this).attr("name").includes("order"))
+                                    $(this).val($(this).val() || total)
+                            });
+                            newElement.find('label').each(function () {
+                                let newFor = $(this).attr('for').replace('__prefix__', total);
+                                $(this).attr('for', newFor);
+                            });
+                            total++;
+                            newElement.removeAttr("id")
+                            $('#id_' + type + '-TOTAL_FORMS').val(total);
+                            $('#form_set').append(newElement);
+                        }
+
+                        function cleanForm(selector) {
+                            $(selector).find(':input').each(function () {
+                                if ($(this).attr("type") !== "submit")
+                                    $(this).val("")
+                            });
+                        }
+
+                        function removeFromModels(e) {
+                            e.preventDefault();
+                            deleteForm("fields", e.target);
+                        }
+
+                        function deleteForm(prefix_tag, btn) {
+                            btn.closest('table').remove();
+                            const forms = $('table');
+                            const formLength = forms.length - 1;
+                            const idString = '#id_' + prefix_tag + '-TOTAL_FORMS';
+                            $(idString).val(formLength);
+                            for (let i = 0, formCount = formLength; i < formCount; i++) {
+                                $(forms.get(i)).find(':input').each(function () {
+                                    updateElementIndex(this, prefix_tag, i);
+                                });
+                                $(forms.get(i)).find('label').each(function () {
+                                    updateElementIndex(this, prefix_tag, i);
+                                });
+                            }
+                            return false;
+                        }
+
+                        function updateElementIndex(el, prefix_tag, ndx) {
+                            const id_regex = new RegExp('(' + prefix_tag + '-\\d+)');
+                            const replacement = prefix_tag + '-' + ndx;
+                            if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+                            if (el.id) el.id = el.id.replace(id_regex, replacement);
+                            if (el.name) el.name = el.name.replace(id_regex, replacement);
+                        }
+
+                    </script>
+
                 </div>
             </div>
         </form>
