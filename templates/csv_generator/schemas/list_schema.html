@@ -1,0 +1,64 @@
+{% extends "base/navbar.html" %}
+
+{% block inner_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <h1>Data schemas</h1>
+            </div>
+            <div class="col-7 text-end align-self-end">
+                <form
+                        action={% url "csv:schema-create" %}
+                >
+                    <button
+                            class="btn btn-success"
+                            type="submit"
+                    >
+                        New Schema
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="row pt-2">
+            <div class="col-10">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Modified</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for schema in schemas %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>
+                                <a class="btn btn-link text-decoration-none"
+                                   href="#"
+                                >
+                                    {{ schema.title }}
+                                </a>
+                            </td>
+                            <td>{{ schema.modified }}</td>
+                            <td>
+                                <a class="btn btn-link text-decoration-none"
+                                   href={% url "csv:schema-update" pk=schema.pk %}
+                                >
+                                    Edit Scheme
+                                </a>
+                                <a class="btn btn-link link-danger text-decoration-none"
+                                   href={% url "csv:schema-delete" pk=schema.pk %}
+                                >
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
