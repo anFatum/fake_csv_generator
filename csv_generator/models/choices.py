@@ -18,9 +18,3 @@ class FieldType(models.TextChoices):
     INTEGER = 'random_int', _("Integer")
     ADDRESS = "address", _("Address")
     DATE = 'date', _("Date")
-
-
-class DatasetStatus(models.IntegerChoices):
-    PENDING = 0
-    DONE = 1
-    ERROR = 2

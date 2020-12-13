@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from csv_generator.models.abc import TimestampedModel
-from csv_generator.models.choices import CharacterType, FieldType, DatasetStatus
+from csv_generator.models.choices import CharacterType, FieldType
 from csv_generator.querysets import CharacterManager
 from csv_generator.utils import user_directory_path
 
@@ -52,6 +52,9 @@ class Dataset(TimestampedModel):
     file = models.FileField(upload_to=user_directory_path,
                             blank=True,
                             null=True)
-    status = models.IntegerField(choices=DatasetStatus.choices,
-                                 blank=False,
-                                 null=False)
+    task_id = models.CharField(max_length=512,
+                               blank=True,
+                               null=True)
+    task_status = models.CharField(max_length=512,
+                                   blank=True,
+                                   null=True)

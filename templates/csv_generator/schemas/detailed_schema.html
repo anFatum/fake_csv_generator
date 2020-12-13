@@ -72,6 +72,7 @@
                         {% for inline_f in inlines %}
                             <table class="table table-borderless">
                                 <tr>
+                                {{ inline_f.id }}
                                     {% for field in inline_f %}
                                         {% if not field.is_hidden %}
                                             <td>
@@ -122,7 +123,7 @@
                                         <input
                                                 class="btn btn-link link-danger text-decoration-none"
                                                 type="submit"
-                                                name="new_del_btn__prefix__"
+                                                name="del_btn__prefix__"
                                                 value="Delete"/>
                                     </td>
                                 </tr>
@@ -191,10 +192,11 @@
                         }
 
                         function deleteForm(prefix_tag, btn) {
-                            btn.closest('table').remove();
+                            const idString = '#id_' + prefix_tag + '-TOTAL_FORMS';
+                            if (!btn.closest('table').getAttribute("id"))
+                                btn.closest('table').remove();
                             const forms = $('table');
                             const formLength = forms.length - 1;
-                            const idString = '#id_' + prefix_tag + '-TOTAL_FORMS';
                             $(idString).val(formLength);
                             for (let i = 0, formCount = formLength; i < formCount; i++) {
                                 $(forms.get(i)).find(':input').each(function () {

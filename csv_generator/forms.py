@@ -51,12 +51,6 @@ class FieldForm(forms.ModelForm):
         exclude = ("id", "schema",)
 
 
-class HiddenDeleteSet(forms.BaseInlineFormSet):
-    def add_fields(self, form, index):
-        super(HiddenDeleteSet, self).add_fields(form, index)
-        form.fields["DELETE"].widget = forms.HiddenInput()
-
-
 CreateSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,
@@ -72,10 +66,9 @@ EditSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,
     form=FieldForm,
-    can_delete=True,
+    can_delete=False,
     can_order=False,
     extra=0,
     min_num=1,
-    validate_min=True,
-    formset=HiddenDeleteSet
+    validate_min=True
 )

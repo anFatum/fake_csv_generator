@@ -65,6 +65,9 @@ db.sqlite3
 db.sqlite3-journal
 **/migrations/*
 
+# Media folder
+media/
+
 # Flask stuff:
 instance/
 .webassets-cache

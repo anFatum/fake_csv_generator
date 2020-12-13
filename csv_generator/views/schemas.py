@@ -110,7 +110,8 @@ class UpdateSchemaView(LoginRequiredMixin, UpdateView):
 
         return render(self.request,
                       self.template_name,
-                      {"form": form,
+                      {"schema": self.get_object(),
+                       "form": form,
                        "inlines": inline_forms})
 
     def get_context_data(self, **kwargs):

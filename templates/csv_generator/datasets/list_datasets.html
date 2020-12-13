@@ -2,8 +2,10 @@
 {% block inner_content %}
     <div class="container">
         <form
-                action={% url "csv:generate-dataset" pk=schema_pk%}
+                action={% url "csv:generate-dataset" pk=schema_pk %}
+                        method="post"
         >
+            {% csrf_token %}
             <div class="row">
                 <div class="col-3">
                     <h1>Data schemas</h1>
@@ -48,12 +50,55 @@
                     {% for dataset in datasets %}
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td>
-                            </td>
                             <td>{{ dataset.created }}</td>
-                            <td>{{ dataset.status }}</td>
-                            <td>Actions</td>
+                            <td>
+                                <button id="status_{{ dataset.task_id }}"
+                                        class="btn btn-secondary btn-sm"
+                                >
+                                    PENDING
+                                </button>
+                            </td>
+                            <td>
+                                <a id="download_{{ dataset.task_id }}"
+                                   hidden
+                                   href="/media/{{ dataset.file }}">
+                                    Download
+                                </a>
+
+                            </td>
                         </tr>
+                        <script>
+                            taskUrl = "{% url "csv:get-dataset-status" task_id=dataset.task_id %}";
+                            if ("{{ dataset.task_status }}" === "None" || "{{ dataset.task_status }}" === "PENDING") {
+                                axios.get(taskUrl)
+                                    .then(function (response) {
+                                        const taskStatus = response.data.task_status;
+                                        updateStatus($("#status_{{ dataset.task_id }}"),
+                                            taskStatus,
+                                            $("#download_{{ dataset.task_id }}")
+                                        )
+                                    })
+                                    .catch(function (err) {
+                                        console.log('err', err);
+                                    });
+                            } else {
+                                updateStatus($("#status_{{ dataset.task_id }}"),
+                                    "{{ dataset.task_status }}",
+                                    $("#download_{{ dataset.task_id }}")
+                                )
+
+                            }
+
+                            function updateStatus(btn, taskStatus, link) {
+                                const btnClass = taskStatus === "SUCCESS" ? "btn btn-success btn-sm" :
+                                    taskStatus === "FAILURE" ? "btn btn-danger btn-sm" : "btn btn-secondary btn-sm"
+
+                                btn.text(taskStatus)
+                                btn.attr("class", btnClass)
+                                if (taskStatus === "SUCCESS")
+                                    link.attr("hidden", false)
+                            }
+                        </script>
                     {% endfor %}
                     </tbody>
                 </table>
