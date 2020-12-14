@@ -59,8 +59,9 @@
                                 </button>
                             </td>
                             <td>
-                                {% if dataset.file %}
+                                {% if dataset.file and dataset.task_status == "SUCCESS" %}
                                     <a
+                                            id="download_{{ dataset.task_id }}"
                                             href="{{ dataset.file.url }}">
                                         Download
                                     </a>
@@ -74,22 +75,32 @@
                                     .then(function (response) {
                                         const taskStatus = response.data.task_status;
                                         updateStatus($("#status_{{ dataset.task_id }}"),
-                                            taskStatus)
+                                            taskStatus,
+                                            "download_{{ dataset.task_id }}",
+                                            response.data.url
+                                        )
                                     })
                                     .catch(function (err) {
                                         console.log('err', err);
                                     });
                             } else {
                                 updateStatus($("#status_{{ dataset.task_id }}"),
-                                    "{{ dataset.task_status }}")
+                                    "{{ dataset.task_status }}",
+                                    "download_{{ dataset.task_id }}")
                             }
 
-                            function updateStatus(btn, taskStatus) {
+                            function updateStatus(btn, taskStatus, linkId, newUrl) {
                                 const btnClass = taskStatus === "SUCCESS" ? "btn btn-success btn-sm" :
                                     taskStatus === "FAILURE" ? "btn btn-danger btn-sm" : "btn btn-secondary btn-sm"
 
                                 btn.text(taskStatus)
                                 btn.attr("class", btnClass)
+                                if ($("#" + linkId).length === 0 && taskStatus === "SUCCESS") {
+                                    btn.closest("td").next("td").append(
+                                        $("<a id=\"" + linkId + "\"" +
+                                            " href=\"" + newUrl + "\">Download</a>")
+                                    )
+                                }
                             }
                         </script>
                     {% endfor %}

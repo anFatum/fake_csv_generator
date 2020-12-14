@@ -102,8 +102,11 @@
                                                 type="number"
                                                 name="{{ inline_f.prefix }}-from"
                                                 id="id_{{ inline_f.prefix }}-from"
-                                                hidden
                                                 class="form-control"
+                                                hidden
+                                                {% if inline_f.instance and inline_f.instance.options %}
+                                                    value={{ inline_f.instance.options.min }}
+                                                {% endif %}
                                         >
                                     </td>
                                     <td>
@@ -117,7 +120,10 @@
                                                 name="{{ inline_f.prefix }}-to"
                                                 id="id_{{ inline_f.prefix }}-to"
                                                 hidden
-                                                class="form-control"
+                                                {% if inline_f.instance and inline_f.instance.options %}
+                                                    value={{ inline_f.instance.options.max }}
+                                                {% endif %}
+                                        class="form-control"
                                         >
                                     </td>
                                     <td class="align-bottom">

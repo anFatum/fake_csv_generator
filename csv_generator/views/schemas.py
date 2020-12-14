@@ -40,6 +40,8 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
         for inner_form in formset:
             field = inner_form.save(commit=False)
             field.schema = new_schema
+            if 'options' in inner_form.cleaned_data:
+                field.options = inner_form.cleaned_data['options']
             field.save()
         return redirect(reverse("csv:index"))
 
@@ -104,9 +106,15 @@ class UpdateSchemaView(LoginRequiredMixin, UpdateView):
         form = self.form_class(data, instance=self.get_object())
         inline_forms = self.formset_class(data, instance=self.get_object())
         if inline_forms.is_valid():
-            Field.objects.filter(schema=self.get_object()).delete()
-            for f in inline_forms:
-                f.save()
+            for f in inline_forms.deleted_forms:
+                field = f.save(commit=False)
+                field.delete()
+            new_forms = [x for x in inline_forms.forms if x not in inline_forms.deleted_forms]
+            for f in new_forms:
+                field = f.save(commit=False)
+                if 'options' in f.cleaned_data:
+                    field.options = f.cleaned_data['options']
+                field.save()
             return super().post(request, **kwargs)
 
         return render(self.request,

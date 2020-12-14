@@ -1,13 +1,16 @@
-from celery import shared_task
-from faker import Faker
+import os
+import shutil
+import time
+from pathlib import Path
+
 import pandas as pd
+from celery import shared_task
+from django.core.files import File
+from faker import Faker
+
+from csv_generator.models import Dataset
 from csv_generator.utils import user_directory_path
 from fake_csv_generator import settings
-import os
-from pathlib import Path
-import time
-from csv_generator.models import Dataset
-from django.core.files import File
 
 
 @shared_task
@@ -20,7 +23,10 @@ def generate_dataset(dataset_pk):
     for field in schema_fields:
         method = getattr(f, str(field.field_type))
         order_dict[field.name] = field.order
-        data = [method() for _ in range(dataset.rows)]
+        kwargs = {}
+        if field.options:
+            kwargs = field.options
+        data = [method(**kwargs) for _ in range(dataset.rows)]
         if result.empty:
             result = pd.DataFrame({field.name: data})
         else:
@@ -41,3 +47,5 @@ def generate_dataset(dataset_pk):
         dataset.file = File(f, filename)
         dataset.save()
     os.remove(output_path)
+    shutil.rmtree(output_path.parent.parent)
+    return dataset.file.url
