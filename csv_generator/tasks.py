@@ -23,7 +23,10 @@ def generate_dataset(dataset_pk):
     for field in schema_fields:
         method = getattr(f, str(field.field_type))
         order_dict[field.name] = field.order
-        data = [method() for _ in range(dataset.rows)]
+        kwargs = {}
+        if field.options:
+            kwargs = field.options
+        data = [method(**kwargs) for _ in range(dataset.rows)]
         if result.empty:
             result = pd.DataFrame({field.name: data})
         else:

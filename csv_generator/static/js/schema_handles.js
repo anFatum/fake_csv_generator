@@ -7,6 +7,13 @@ $("input[name^='del_btn']").each(function () {
 
 $("select[name$=field_type]").each(function () {
     $(this).on("change", handleFieldType)
+    $(this).trigger("change")
+})
+$("input[name$=DELETE]").each(function () {
+    $(this).attr("hidden", true)
+})
+$("label[for$=DELETE]").each(function () {
+    $(this).attr("hidden", true)
 })
 
 function addForm(e) {
@@ -52,35 +59,18 @@ function removeFromModels(e) {
 }
 
 function deleteForm(prefix_tag, btn) {
-    const idString = '#id_' + prefix_tag + '-TOTAL_FORMS';
-    if (!btn.closest('table').getAttribute("id"))
-        btn.closest('table').remove();
-    const forms = $('table');
-    const formLength = forms.length - 1;
-    $(idString).val(formLength);
-    for (let i = 0, formCount = formLength; i < formCount; i++) {
-        $(forms.get(i)).find(':input').each(function () {
-            updateElementIndex(this, prefix_tag, i);
-        });
-        $(forms.get(i)).find('label').each(function () {
-            updateElementIndex(this, prefix_tag, i);
-        });
+    if (prefix_tag !== "__prefix__") {
+        $(btn.closest('table')).attr("hidden", true);
+        const idRow = $(btn).attr("name").split("_")[2]
+        $("#id_fields-" + idRow + "-DELETE").prop('checked', true)
     }
     return false;
 }
 
-function updateElementIndex(el, prefix_tag, ndx) {
-    const id_regex = new RegExp('(' + prefix_tag + '-\\d+)');
-    const replacement = prefix_tag + '-' + ndx;
-    if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
-    if (el.id) el.id = el.id.replace(id_regex, replacement);
-    if (el.name) el.name = el.name.replace(id_regex, replacement);
-}
 
 function handleFieldType(e) {
     const selectedOption = $(e.target).find("option:selected");
     const prefix = $(e.target).attr("name").split('-')[1];
-    console.log(prefix);
     if (selectedOption.text() === "Integer") {
         changeNumberFieldVisibility(prefix, false)
     } else {

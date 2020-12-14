@@ -45,11 +45,12 @@ class FieldForm(forms.ModelForm):
     order = forms.IntegerField(
         widget=forms.NumberInput(attrs={"class": "form-control"})
     )
+    options = forms.HiddenInput()
 
     class Meta:
         model = Field
-        fields = ("name", "field_type", "order")
-        exclude = ("id", "schema",)
+        fields = ("name", "field_type", "order", )
+        exclude = ("id", "schema", "DELETE")
 
     def clean(self):
         cleaned_data = super().clean()
@@ -57,8 +58,8 @@ class FieldForm(forms.ModelForm):
             from_range = int(self.data[f"{self.prefix}-from"])
             to_range = int(self.data[f"{self.prefix}-to"])
             cleaned_data["options"] = {
-                "from": from_range,
-                "to": to_range
+                "min": from_range,
+                "max": to_range
             }
         return cleaned_data
 
@@ -78,6 +79,9 @@ class UniqueFieldsFormSet(forms.BaseInlineFormSet):
                 raise ValidationError("Titles in a set must have distinct titles.")
             fields.append(title)
 
+    def _should_delete_form(self, form):
+        return form.cleaned_data.get('DELETE', False)
+
 
 CreateSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
@@ -94,9 +98,10 @@ EditSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,
     form=FieldForm,
-    can_delete=False,
+    can_delete=True,
     can_order=False,
     extra=0,
     min_num=1,
-    validate_min=True
+    validate_min=True,
+    formset=UniqueFieldsFormSet
 )
