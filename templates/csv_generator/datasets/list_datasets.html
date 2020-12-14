@@ -59,12 +59,12 @@
                                 </button>
                             </td>
                             <td>
-                                <a id="download_{{ dataset.task_id }}"
-                                   hidden
-                                   href="/media/{{ dataset.file }}">
-                                    Download
-                                </a>
-
+                                {% if dataset.file %}
+                                    <a
+                                            href="{{ dataset.file.url }}">
+                                        Download
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         <script>
@@ -74,29 +74,22 @@
                                     .then(function (response) {
                                         const taskStatus = response.data.task_status;
                                         updateStatus($("#status_{{ dataset.task_id }}"),
-                                            taskStatus,
-                                            $("#download_{{ dataset.task_id }}")
-                                        )
+                                            taskStatus)
                                     })
                                     .catch(function (err) {
                                         console.log('err', err);
                                     });
                             } else {
                                 updateStatus($("#status_{{ dataset.task_id }}"),
-                                    "{{ dataset.task_status }}",
-                                    $("#download_{{ dataset.task_id }}")
-                                )
-
+                                    "{{ dataset.task_status }}")
                             }
 
-                            function updateStatus(btn, taskStatus, link) {
+                            function updateStatus(btn, taskStatus) {
                                 const btnClass = taskStatus === "SUCCESS" ? "btn btn-success btn-sm" :
                                     taskStatus === "FAILURE" ? "btn btn-danger btn-sm" : "btn btn-secondary btn-sm"
 
                                 btn.text(taskStatus)
                                 btn.attr("class", btnClass)
-                                if (taskStatus === "SUCCESS")
-                                    link.attr("hidden", false)
                             }
                         </script>
                     {% endfor %}

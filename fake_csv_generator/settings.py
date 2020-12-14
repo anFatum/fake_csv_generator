@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
     "authentication.apps.AuthenticationConfig",
     "csv_generator.apps.CsvGeneratorConfig"
 ]
@@ -173,20 +174,31 @@ USE_L10N = True
 
 USE_TZ = True
 
+# AWS DATA STORAGE
+
+AWS_ACCESS_KEY_ID = configs.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = configs.AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = configs.AWS_STORAGE_BUCKET_NAME
+AWS_S3_REGION_NAME = configs.AWS_S3_REGION_NAME
+
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'fake_csv_generator.storages.StaticStorage'
+
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'fake_csv_generator.storages.MediaStorage'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
+STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_S3_REGION_NAME)
+# MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_S3_REGION_NAME)
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'csv_generator', 'static'),
 )
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_ROOT = BASE_DIR / 'media'
-
-MEDIA_URL = '/media/'
 # celery
 CELERY_REDIS_AUTH = f"{configs.REDIS_USERNAME}:{configs.REDIS_PASSWORD}"
 CELERY_REDIS_URL = f"{configs.REDIS_HOST}:{configs.REDIS_PORT}"

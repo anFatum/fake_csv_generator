@@ -4,7 +4,7 @@ from django.http import Http404
 from django.views.generic import ListView, View
 from csv_generator.tasks import generate_dataset
 from csv_generator.models import Schema, Dataset
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import redirect, reverse
 from celery import current_app
 from django.http.response import JsonResponse
 
@@ -37,12 +37,12 @@ class GenerateDatasetView(LoginRequiredMixin, View):
     redirect_field_name = 'redirect_to'
 
     def post(self, request, *args, **kwargs):
-        row_count = int(request.POST.get('rows_number', None))
-        if row_count is None or row_count < 0:
+        row_count = request.POST.get('rows_number', None)
+        if row_count is None or int(row_count) < 0:
             raise Http404
         new_dataset = Dataset(
             schema_id=self.kwargs['pk'],
-            rows=row_count
+            rows=int(row_count)
         )
         new_dataset.save()
         task = generate_dataset.delay(new_dataset.pk)

@@ -30,7 +30,7 @@ def generate_dataset(dataset_pk):
     timestamp = int(time.time())
     filename = f"dataset_{timestamp}.csv"
     output_path = user_directory_path(dataset, filename)
-    output_path = settings.MEDIA_ROOT / Path(output_path)
+    output_path = settings.BASE_DIR / Path(output_path)
     os.makedirs(output_path.parent,
                 exist_ok=True)
     result.to_csv(output_path,
