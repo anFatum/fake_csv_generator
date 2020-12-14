@@ -61,7 +61,7 @@ function removeFromModels(e) {
 function deleteForm(prefix_tag, btn) {
     if (prefix_tag !== "__prefix__") {
         $(btn.closest('table')).attr("hidden", true);
-        const idRow = $(btn).attr("name").split("_")[2]
+        const idRow = $(btn).attr("name").split("-")[1]
         $("#id_fields-" + idRow + "-DELETE").prop('checked', true)
     }
     return false;

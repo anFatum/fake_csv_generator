@@ -86,7 +86,10 @@ class UniqueFieldsFormSet(forms.BaseInlineFormSet):
             fields.append(title)
 
     def _should_delete_form(self, form):
-        return form.cleaned_data.get('DELETE', False)
+        delete_field_name = f"{form.prefix}-DELETE"
+        self_fields = list(filter(lambda x: x.startswith(form.prefix),
+                                  self.data.keys()))
+        return delete_field_name in self_fields
 
 
 CreateSchemaInlineFormSet = forms.inlineformset_factory(

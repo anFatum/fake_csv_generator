@@ -57,7 +57,6 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
         for d in inline_forms.forms:
             if d.cleaned_data["DELETE"]:
                 inline_forms.forms.remove(d)
-
         return render(self.request,
                       self.template_name,
                       {"form": form,
