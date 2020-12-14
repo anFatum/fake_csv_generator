@@ -23,7 +23,7 @@ class ListDatasetsView(LoginRequiredMixin, ListView):
         schema = Schema.objects.filter(pk=schema_pk).first()
         if schema is None or schema.owner != self.request.user:
             raise Http404
-        queryset = Dataset.objects.filter(schema=schema)
+        queryset = Dataset.objects.filter(schema=schema).order_by("created")
         return queryset
 
     def get_context_data(self, *args, **kwargs):

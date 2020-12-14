@@ -21,7 +21,7 @@ class ListSchemasView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Schema.objects.all()
+        queryset = Schema.objects.all().order_by("modified")
         return queryset.filter(owner=user)
 
 
