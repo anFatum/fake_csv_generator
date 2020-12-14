@@ -1,5 +1,5 @@
 {% extends "base/navbar.html" %}
-{% load class_extras %}
+{% load static %}
 {% block inner_content %}
     <div class="container">
         <form
@@ -72,7 +72,7 @@
                         {% for inline_f in inlines %}
                             <table class="table table-borderless">
                                 <tr>
-                                {{ inline_f.id }}
+                                    {{ inline_f.id }}
                                     {% for field in inline_f %}
                                         {% if not field.is_hidden %}
                                             <td>
@@ -92,6 +92,34 @@
                                             </td>
                                         {% endif %}
                                     {% endfor %}
+                                    <td>
+                                        <label
+                                                for="id_{{ inline_f.prefix }}-from"
+                                                class="form-label"
+                                                hidden
+                                        >From</label>
+                                        <input
+                                                type="number"
+                                                name="{{ inline_f.prefix }}-from"
+                                                id="id_{{ inline_f.prefix }}-from"
+                                                hidden
+                                                class="form-control"
+                                        >
+                                    </td>
+                                    <td>
+                                        <label
+                                                for="id_{{ inline_f.prefix }}-to"
+                                                class="form-label"
+                                                hidden
+                                        > To </label>
+                                        <input
+                                                type="number"
+                                                name="{{ inline_f.prefix }}-to"
+                                                id="id_{{ inline_f.prefix }}-to"
+                                                hidden
+                                                class="form-control"
+                                        >
+                                    </td>
                                     <td class="align-bottom">
                                         <input
                                                 class="btn btn-link link-danger text-decoration-none"
@@ -119,6 +147,34 @@
                                         </td>
                                     {% endfor %}
 
+                                    <td>
+                                        <label
+                                                for="id_fields-__prefix__-from"
+                                                class="form-label"
+                                                hidden
+                                        >From</label>
+                                        <input
+                                                type="number"
+                                                name="fields-__prefix__-from"
+                                                id="id_fields-__prefix__-from"
+                                                hidden
+                                                class="form-control"
+                                        >
+                                    </td>
+                                    <td>
+                                        <label
+                                                for="id_fields-__prefix__-to"
+                                                class="form-label"
+                                                hidden
+                                        > To </label>
+                                        <input
+                                                type="number"
+                                                name="fields-__prefix__-to"
+                                                id="id_fields-__prefix__-to"
+                                                hidden
+                                                class="form-control"
+                                        >
+                                    </td>
                                     <td class="align-bottom">
                                         <input
                                                 class="btn btn-link link-danger text-decoration-none"
@@ -141,82 +197,7 @@
                         </div>
                     </div>
 
-                    <script>
-                        let addButton = $("#add_more")
-                        addButton.on('click', addForm)
-
-                        $("input[name^='del_btn']").each(function () {
-                            $(this).on("click", removeFromModels)
-                        })
-
-                        function addForm(e) {
-                            e.preventDefault()
-                            cloneMore("#empty_form", 'fields')
-                            cleanForm("#empty_form")
-                        }
-
-                        function cloneMore(selector, type) {
-                            const type_field = $(selector).find('option:selected').val();
-                            let newElement = $(selector).clone(true);
-                            let total = $('#id_' + type + '-TOTAL_FORMS').val();
-                            newElement.find(':input').each(function () {
-                                let name = $(this).attr('name').replace('__prefix__', total);
-                                let id = 'id_' + name;
-                                const isSelect = $(this).find("option:selected").val();
-                                $(this).attr({'name': name, 'id': id}).removeAttr('checked');
-                                if (isSelect)
-                                    $(this).val(type_field)
-                                if ($(this).attr("name").includes("order"))
-                                    $(this).val($(this).val() || total)
-                            });
-                            newElement.find('label').each(function () {
-                                let newFor = $(this).attr('for').replace('__prefix__', total);
-                                $(this).attr('for', newFor);
-                            });
-                            total++;
-                            newElement.removeAttr("id")
-                            $('#id_' + type + '-TOTAL_FORMS').val(total);
-                            $('#form_set').append(newElement);
-                        }
-
-                        function cleanForm(selector) {
-                            $(selector).find(':input').each(function () {
-                                if ($(this).attr("type") !== "submit")
-                                    $(this).val("")
-                            });
-                        }
-
-                        function removeFromModels(e) {
-                            e.preventDefault();
-                            deleteForm("fields", e.target);
-                        }
-
-                        function deleteForm(prefix_tag, btn) {
-                            const idString = '#id_' + prefix_tag + '-TOTAL_FORMS';
-                            if (!btn.closest('table').getAttribute("id"))
-                                btn.closest('table').remove();
-                            const forms = $('table');
-                            const formLength = forms.length - 1;
-                            $(idString).val(formLength);
-                            for (let i = 0, formCount = formLength; i < formCount; i++) {
-                                $(forms.get(i)).find(':input').each(function () {
-                                    updateElementIndex(this, prefix_tag, i);
-                                });
-                                $(forms.get(i)).find('label').each(function () {
-                                    updateElementIndex(this, prefix_tag, i);
-                                });
-                            }
-                            return false;
-                        }
-
-                        function updateElementIndex(el, prefix_tag, ndx) {
-                            const id_regex = new RegExp('(' + prefix_tag + '-\\d+)');
-                            const replacement = prefix_tag + '-' + ndx;
-                            if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
-                            if (el.id) el.id = el.id.replace(id_regex, replacement);
-                            if (el.name) el.name = el.name.replace(id_regex, replacement);
-                        }
-
+                    <script src={% static "js/schema_handles.js" %}>
                     </script>
 
                 </div>

@@ -34,7 +34,8 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
     formset_class = CreateSchemaInlineFormSet
 
     def form_valid(self, form, formset):
-        new_schema = form.save()
+        new_schema = form.save(commit=False)
+        new_schema.save()
         formset.instance = new_schema
         for inner_form in formset:
             field = inner_form.save(commit=False)
