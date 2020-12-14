@@ -107,6 +107,9 @@
                                                 {% if inline_f.instance and inline_f.instance.options %}
                                                     value={{ inline_f.instance.options.min }}
                                                 {% endif %}
+                                                {% if inline_f.cleaned_data and inline_f.cleaned_data.options %}
+                                                    value={{ inline_f.cleaned_data.options.min }}
+                                                {% endif %}
                                         >
                                     </td>
                                     <td>
@@ -122,6 +125,9 @@
                                                 hidden
                                                 {% if inline_f.instance and inline_f.instance.options %}
                                                     value={{ inline_f.instance.options.max }}
+                                                {% endif %}
+                                                {% if inline_f.cleaned_data and inline_f.cleaned_data.options %}
+                                                    value={{ inline_f.cleaned_data.options.max }}
                                                 {% endif %}
                                         class="form-control"
                                         >

@@ -49,14 +49,20 @@ class FieldForm(forms.ModelForm):
 
     class Meta:
         model = Field
-        fields = ("name", "field_type", "order", )
+        fields = ("name", "field_type", "order",)
         exclude = ("id", "schema", "DELETE")
 
     def clean(self):
         cleaned_data = super().clean()
+        if 'field_type' not in cleaned_data:
+            raise ValidationError("Field type is required")
         if cleaned_data['field_type'] == FieldType.INTEGER:
-            from_range = int(self.data[f"{self.prefix}-from"])
-            to_range = int(self.data[f"{self.prefix}-to"])
+            try:
+                from_range = int(self.data[f"{self.prefix}-from"])
+                to_range = int(self.data[f"{self.prefix}-to"])
+            except ValueError:
+                self.add_error("field_type", "Integer should have both min and max")
+                raise ValidationError("Integer should have both min and max")
             cleaned_data["options"] = {
                 "min": from_range,
                 "max": to_range
@@ -87,11 +93,12 @@ CreateSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,
     form=FieldForm,
-    can_delete=False,
+    can_delete=True,
     can_order=False,
     extra=-1,
     min_num=1,
-    validate_min=True
+    validate_min=True,
+    formset=UniqueFieldsFormSet
 )
 
 EditSchemaInlineFormSet = forms.inlineformset_factory(

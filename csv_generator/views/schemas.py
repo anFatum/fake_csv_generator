@@ -38,6 +38,8 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
         new_schema.save()
         formset.instance = new_schema
         for inner_form in formset:
+            if inner_form in formset.deleted_forms:
+                continue
             field = inner_form.save(commit=False)
             field.schema = new_schema
             if 'options' in inner_form.cleaned_data:
@@ -52,6 +54,9 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
         inline_forms = self.formset_class(data)
         if form.is_valid() and inline_forms.is_valid():
             return self.form_valid(form, inline_forms)
+        for d in inline_forms.forms:
+            if d.cleaned_data["DELETE"]:
+                inline_forms.forms.remove(d)
 
         return render(self.request,
                       self.template_name,
@@ -66,7 +71,6 @@ class CreateSchemaView(LoginRequiredMixin, CreateView):
         else:
             ctx['form'] = SchemaForm()
             inlines = self.formset_class()
-            inlines.forms = []
             ctx['inlines'] = inlines
         return ctx
 
