@@ -1,0 +1,108 @@
+{% extends "base/navbar.html" %}
+{% block inner_content %}
+    <div class="container">
+        <form
+                action={% url "csv:generate-dataset" pk=schema_pk %}
+                        method="post"
+        >
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-3">
+                    <h1>Data schemas</h1>
+                </div>
+                <div class="col-7 align-self-center">
+                    <div class="d-flex justify-content-end">
+                        <div class="col-md-auto text-end px-2">
+                            <div class="input-group align-items-center">
+                                Rows:&nbsp;
+                                <input
+                                        class="form-control inline"
+                                        type="number"
+                                        id="rows_number_id"
+                                        name="rows_number"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-auto text-end ">
+                            <button
+                                    class="btn btn-success"
+                                    type="submit"
+                            >
+                                Generate data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row pt-2">
+            <div class="col-10">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for dataset in datasets %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ dataset.created }}</td>
+                            <td>
+                                <button id="status_{{ dataset.task_id }}"
+                                        class="btn btn-secondary btn-sm"
+                                >
+                                    PENDING
+                                </button>
+                            </td>
+                            <td>
+                                <a id="download_{{ dataset.task_id }}"
+                                   hidden
+                                   href="/media/{{ dataset.file }}">
+                                    Download
+                                </a>
+
+                            </td>
+                        </tr>
+                        <script>
+                            taskUrl = "{% url "csv:get-dataset-status" task_id=dataset.task_id %}";
+                            if ("{{ dataset.task_status }}" === "None" || "{{ dataset.task_status }}" === "PENDING") {
+                                axios.get(taskUrl)
+                                    .then(function (response) {
+                                        const taskStatus = response.data.task_status;
+                                        updateStatus($("#status_{{ dataset.task_id }}"),
+                                            taskStatus,
+                                            $("#download_{{ dataset.task_id }}")
+                                        )
+                                    })
+                                    .catch(function (err) {
+                                        console.log('err', err);
+                                    });
+                            } else {
+                                updateStatus($("#status_{{ dataset.task_id }}"),
+                                    "{{ dataset.task_status }}",
+                                    $("#download_{{ dataset.task_id }}")
+                                )
+
+                            }
+
+                            function updateStatus(btn, taskStatus, link) {
+                                const btnClass = taskStatus === "SUCCESS" ? "btn btn-success btn-sm" :
+                                    taskStatus === "FAILURE" ? "btn btn-danger btn-sm" : "btn btn-secondary btn-sm"
+
+                                btn.text(taskStatus)
+                                btn.attr("class", btnClass)
+                                if (taskStatus === "SUCCESS")
+                                    link.attr("hidden", false)
+                            }
+                        </script>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

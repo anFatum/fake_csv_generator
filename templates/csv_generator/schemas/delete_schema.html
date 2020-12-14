@@ -1,0 +1,28 @@
+{% extends "base/navbar.html" %}
+
+{% block inner_content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <h1>Delete schema</h1>
+            </div>
+        </div>
+        <div class="row pt-2">
+            <div class="col-10">
+                <form action={% url "csv:schema-delete" pk=schema.pk %}
+                              method="post"
+                >
+                    {% csrf_token %}
+                    <p>Are you sure you want to delete "{{ schema.title }}"?</p>
+                    <button class="btn btn-primary" type="submit">Confirm</button>
+
+                    <a class="btn btn-danger"
+                       href={% url "csv:index" %}
+                    >
+                        Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
