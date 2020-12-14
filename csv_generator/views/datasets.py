@@ -57,7 +57,8 @@ class GetDatasetStatus(LoginRequiredMixin, View):
 
     def get(self, request, task_id):
         task = current_app.AsyncResult(task_id)
-        response_data = {'task_status': task.status, 'task_id': task.id}
+        response_data = {'task_status': task.status, 'task_id': task.id,
+                         'url': task.result}
         dataset = Dataset.objects.get(task_id=task_id)
         dataset.task_status = response_data['task_status']
         dataset.save()
