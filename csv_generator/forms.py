@@ -25,6 +25,11 @@ class SchemaForm(forms.ModelForm):
         fields = ("title", "column_separator", "string_character")
 
     def clean_title(self):
+        """
+        Checks if user has unique named schemas
+        :return: Checked title
+        :rtype:
+        """
         qs = Schema.objects.filter(owner=self.instance.owner)
         schema = qs.filter(title=self.cleaned_data['title']).first()
         if schema is not None and schema.id != self.instance.id:
@@ -53,6 +58,12 @@ class FieldForm(forms.ModelForm):
         exclude = ("id", "schema", "DELETE")
 
     def clean(self):
+        """
+        Checks additionally if field has a field type and if
+        its type == Integer if it has min and max values
+        :return: Cleaned form data
+        :rtype:
+        """
         cleaned_data = super().clean()
         if 'field_type' not in cleaned_data:
             raise ValidationError("Field type is required")
@@ -86,12 +97,21 @@ class UniqueFieldsFormSet(forms.BaseInlineFormSet):
             fields.append(title)
 
     def _should_delete_form(self, form):
+        """
+        Returns if form is marked as created
+        Checks if exists field form.prefix_DELETE in retrieved ones
+        :param form: Form that is checked to be deleted
+        :type form:
+        :return: boolean True/False
+        :rtype:
+        """
         delete_field_name = f"{form.prefix}-DELETE"
         self_fields = list(filter(lambda x: x.startswith(form.prefix),
                                   self.data.keys()))
         return delete_field_name in self_fields
 
 
+# Inline form set with Schema and Fields for create view
 CreateSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,
@@ -103,7 +123,9 @@ CreateSchemaInlineFormSet = forms.inlineformset_factory(
     validate_min=True,
     formset=UniqueFieldsFormSet
 )
-
+# Inline form set with Schema and Fields for update view
+# Differs that has 0 extra rows to show each one that is
+# already created
 EditSchemaInlineFormSet = forms.inlineformset_factory(
     Schema,
     Field,

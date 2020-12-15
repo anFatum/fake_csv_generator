@@ -14,6 +14,11 @@
                     <div class="d-flex justify-content-end">
                         <div class="col-md-auto text-end px-2">
                             <div class="input-group align-items-center">
+                                {% if errors %}
+                                    <div class="alert alert-danger">
+                                        {{ errors }}
+                                    </div>
+                                {% endif %}
                                 Rows:&nbsp;
                                 <input
                                         class="form-control inline"

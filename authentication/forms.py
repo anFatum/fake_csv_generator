@@ -5,6 +5,9 @@ User = get_user_model()
 
 
 class LoginForm(forms.Form):
+    """
+    Simple login form
+    """
     error_css_class = "alert alert-danger"
     username = forms.CharField(
         widget=forms.TextInput(attrs={"placeholder": "Username",

@@ -10,6 +10,13 @@ class LoginView(TemplateView):
     template_name = "authentication/login.html"
 
     def get(self, request, *args, **kwargs):
+        """
+        GET method returns Login view
+        :param request: GET request
+        :type request:
+        :return: HTTP response
+        :rtype: HttpResponse
+        """
         context = {
             'form': LoginForm()
         }
@@ -17,6 +24,14 @@ class LoginView(TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        """
+        POST method login user (if credentials are valid and user is
+        active) and redirects to main page
+        :param request: POST request
+        :type request:
+        :return: HTTP response
+        :rtype: HttpResponse
+        """
         form = LoginForm(request.POST or None)
         context = {
             'form': form
@@ -25,11 +40,9 @@ class LoginView(TemplateView):
             cleaned_form = form.cleaned_data
             user = authenticate(username=cleaned_form['username'],
                                 password=cleaned_form['password'])
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return HttpResponseRedirect('/')
-                form.add_error(None, "User is not active")
+            if user is not None and user.is_active:
+                login(request, user)
+                return HttpResponseRedirect('/')
             else:
                 form.add_error(None, "Wrong credentials")
         return render(request, self.template_name, context)
@@ -37,5 +50,12 @@ class LoginView(TemplateView):
 
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
+        """
+        GET request for logout, redirecting to home page, that redirects to
+        login page
+        :param request:
+        :type request:
+        :rtype:
+        """
         logout(request)
         return HttpResponseRedirect('/')
